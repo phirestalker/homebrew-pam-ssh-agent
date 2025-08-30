@@ -23,7 +23,7 @@ class PamSshAgent < Formula
         # The library is built as `libpam_ssh_agent.so` or `libpam_ssh_agent.dylib`.
         # We need to install it as `pam_ssh_agent.so` in the standard PAM location
         # within the Homebrew prefix.
-        lib_name = shared_library("pam_ssh_agent") # Resolves to libpam_ssh_agent.so or .dylib
+        lib_name = shared_library("libpam_ssh_agent") # Resolves to libpam_ssh_agent.so or .dylib
         (lib/"security").install "target/release/#{lib_name}" => "pam_ssh_agent.so"
     end
 
