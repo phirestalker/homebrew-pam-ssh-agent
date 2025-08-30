@@ -27,6 +27,14 @@ class PamSshAgent < Formula
         (lib/"security").install "target/release/#{lib_name}" => "pam_ssh_agent.so"
     end
 
+    def post_install
+        if OS.mac?
+            # On macOS, the compiled library must be signed to be loaded by system processes.
+            # We use an ad-hoc signature, which is sufficient for this purpose.
+            system "/usr/bin/codesign", "--force", "--sign", "-", "#{lib}/security/pam_ssh_agent.so"
+        end
+    end
+
     def caveats
         <<~EOS
         To use pam-ssh-agent, you must now configure your system's PAM service.
