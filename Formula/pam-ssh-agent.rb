@@ -18,7 +18,7 @@ class PamSshAgent < Formula
 
     def install
         # Build the Rust project in release mode
-        system "cargo", "build", "--release", "--lib"
+        system "cargo", "build", "--release"
 
         # The library is built as `libpam_ssh_agent.so` or `libpam_ssh_agent.dylib`.
         # We need to install it as `pam_ssh_agent.so` in the standard PAM location
