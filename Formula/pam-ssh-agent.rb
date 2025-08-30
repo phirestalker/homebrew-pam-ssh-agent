@@ -1,8 +1,8 @@
 class PamSshAgent < Formula
     desc "PAM module for authentication with ssh-agent"
     homepage "https://github.com/nresare/pam-ssh-agent"
-    url "https://github.com/nresare/pam-ssh-agent/archive/refs/tags/v0.5.1.tar.gz"
-    sha256 "c20f1882d92d77d739d480838634f59040854c60c32da451d6c8e3c09b6732ca"
+    url "https://github.com/nresare/pam-ssh-agent/archive/refs/tags/v0.9.4.tar.gz"
+    sha256 "9b0f6d6aa72b4dbe6c3c6d6c6ce62081ed86519ad117451aa492fa73aabbfdb3"
     license "BSD-2-Clause"
     head "https://github.com/nresare/pam-ssh-agent.git", branch: "master"
 
