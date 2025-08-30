@@ -25,13 +25,12 @@ class PamSshAgent < Formula
         # within the Homebrew prefix.
         lib_name = shared_library("libpam_ssh_agent") # Resolves to libpam_ssh_agent.so or .dylib
         (lib/"security").install "target/release/#{lib_name}" => "pam_ssh_agent.so"
-    end
 
-    def post_install
         if OS.mac?
-            # On macOS, the compiled library must be signed to be loaded by system processes.
-            # We use an ad-hoc signature, which is sufficient for this purpose.
-            system "/usr/bin/codesign", "--force", "--sign", "-", "#{lib}/security/pam_ssh_agent.so"
+            # On macOS, the compiled library must be signed to be loaded by system processes
+            # that are protected by the Hardened Runtime. We use an ad-hoc signature
+            # with the runtime option.
+            system "/usr/bin/codesign", "--force", "--sign", "-", "--options=runtime", lib/"security/pam_ssh_agent.so"
         end
     end
 
