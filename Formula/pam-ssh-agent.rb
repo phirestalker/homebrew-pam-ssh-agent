@@ -48,7 +48,7 @@ class PamSshAgent < Formula
             signing_identity = "pam-signer"
             # On modern macOS, a valid, trusted code signing certificate is required.
             # We check for its existence before attempting to sign.
-            unless system("security", "find-identity", "-v", "-p", "codesign", "-s", signing_identity, out: File::NULL, err: File::NULL)
+            unless system("security", "find-identity", "-v", "-p", "codesigning", "-s", signing_identity, out: File::NULL, err: File::NULL)
                 odie <<~EOS
                 Code signing certificate "#{signing_identity}" not found in your keychains.
                 Please read the "macOS Security Configuration" instructions printed by
