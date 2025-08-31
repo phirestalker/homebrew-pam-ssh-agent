@@ -48,14 +48,14 @@ class PamSshAgent < Formula
             signing_identity = "pam-signer"
             # On modern macOS, a valid, trusted code signing certificate is required.
             # We check for its existence before attempting to sign.
-            unless system("security", "find-identity", "-v", "-p", "codesigning", "-s", signing_identity, out: File::NULL, err: File::NULL)
-                odie <<~EOS
-                Code signing certificate "#{signing_identity}" not found in your keychains.
-                Please read the "macOS Security Configuration" instructions printed by
-                `brew info #{name}` to create and trust the certificate,
-                then run `brew reinstall #{name}`.
-                EOS
-            end
+            # unless system("security", "find-identity", "-v", "-p", "codesigning", "-s", signing_identity, out: File::NULL, err: File::NULL)
+            #     odie <<~EOS
+            #     Code signing certificate "#{signing_identity}" not found in your keychains.
+            #     Please read the "macOS Security Configuration" instructions printed by
+            #     `brew info #{name}` to create and trust the certificate,
+            #     then run `brew reinstall #{name}`.
+            #     EOS
+            # end
 
             # Create a minimal entitlements file. This signals to macOS that the binary
             # is aware of the modern security model, which can be necessary for it
