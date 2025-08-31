@@ -27,19 +27,18 @@ class PamSshAgent < Formula
     end
 
     def install
-        features = []
         if OS.mac?
             # On macOS, we build a self-contained binary by linking libssh and its
             # dependencies (like OpenSSL) statically. This avoids issues with SIP
             # and Library Validation when loading dylibs from a system process.
-            features << "libssh-sys/static"
-            # Guide the build to find the static OpenSSL libraries from Homebrew.
+            # We use environment variables to instruct the dependency crates to link statically.
+            ENV["LIBSSH_STATIC"] = "1"
             ENV["OPENSSL_DIR"] = Formula["openssl@3"].opt_prefix
             ENV["OPENSSL_STATIC"] = "1"
         end
 
         # Build the Rust project in release mode
-        system "cargo", "build", "--release", "--lib", "--features", features.join(",")
+        system "cargo", "build", "--release", "--lib"
 
         # The library is built as `libpam_ssh_agent.so` or `libpam_ssh_agent.dylib`.
         # We need to install it as `pam_ssh_agent.so` in the standard PAM location
