@@ -23,7 +23,7 @@ class PamSshAgent < Formula
         depends_on "libssh" => :build
         depends_on "openssl@3" => :build
         # For codesigning
-        depends_on :xcode => :build
+        # depends_on :xcode => :build
     end
 
     def install
