@@ -8,28 +8,48 @@ class PamSshAgent < Formula
 
     # Build dependencies
     depends_on "rust" => :build
+    depends_on "pkg-config" => :build
 
     # Runtime dependencies
-    depends_on "libssh"
-
+    # libssh and openssl are linked statically on macOS
     on_linux do
+        depends_on "libssh"
         depends_on "linux-pam"
+        depends_on "openssl@3"
+    end
+
+    on_macos do
+        # For static linking
+        depends_on "libssh" => :build
+        depends_on "openssl@3" => :build
+        # For codesigning
+        depends_on :xcode => :build
     end
 
     def install
+        features = []
+        if OS.mac?
+            # On macOS, we build a self-contained binary by linking libssh and its
+            # dependencies (like OpenSSL) statically. This avoids issues with SIP
+            # and Library Validation when loading dylibs from a system process.
+            features << "libssh-sys/static"
+            # Guide the build to find the static OpenSSL libraries from Homebrew.
+            ENV["OPENSSL_DIR"] = Formula["openssl@3"].opt_prefix
+            ENV["OPENSSL_STATIC"] = "1"
+        end
+
         # Build the Rust project in release mode
-        system "cargo", "build", "--release"
+        system "cargo", "build", "--release", "--lib", "--features", features.join(",")
 
         # The library is built as `libpam_ssh_agent.so` or `libpam_ssh_agent.dylib`.
         # We need to install it as `pam_ssh_agent.so` in the standard PAM location
         # within the Homebrew prefix.
-        lib_name = shared_library("libpam_ssh_agent") # Resolves to libpam_ssh_agent.so or .dylib
+        lib_name = shared_library("pam_ssh_agent")
         (lib/"security").install "target/release/#{lib_name}" => "pam_ssh_agent.so"
 
         if OS.mac?
             # On macOS, the compiled library must be signed to be loaded by system processes
-            # that are protected by the Hardened Runtime. We use an ad-hoc signature
-            # with the runtime option.
+            # that are protected by the Hardened Runtime.
             system "/usr/bin/codesign", "--force", "--sign", "-", "--options=runtime", lib/"security/pam_ssh_agent.so"
         end
     end
@@ -40,11 +60,14 @@ class PamSshAgent < Formula
         The module was installed to:
         #{lib}/security/pam_ssh_agent.so
 
+        **macOS Note:** This formula has built a statically-linked, self-contained
+        module and signed it to comply with system security policies.
+
         **macOS Instructions:**
 
-        You do NOT need to create a symlink on macOS. Instead, edit the PAM
-        configuration file for the service you want (e.g., `/etc/pam.d/sudo`)
-        and add the following line at the top, using the full path:
+        You do NOT need to create a symlink. Edit the PAM configuration for
+        the service you want (e.g., `/etc/pam.d/sudo`) and add the following
+        line at the top, using the full path:
 
         auth       sufficient     #{lib}/security/pam_ssh_agent.so
 
@@ -54,12 +77,8 @@ class PamSshAgent < Formula
         **Linux Instructions:**
 
         1. First, create a symlink from the installed module to your system's
-        PAM directory. The location varies by distribution:
-        - Debian/Ubuntu: /lib/x86_64-linux-gnu/security/
-        - RHEL/CentOS/Fedora: /lib64/security/
-        - Arch Linux: /usr/lib/security/
+        PAM directory (e.g., /lib/x86_64-linux-gnu/security/):
 
-        Example for a Debian-based system:
         sudo ln -sf "#{lib}/security/pam_ssh_agent.so" /lib/x86_64-linux-gnu/security/
 
         2. Next, edit the PAM configuration file (e.g., `/etc/pam.d/sudo`)
@@ -71,14 +90,18 @@ class PamSshAgent < Formula
 
         To use a specific set of authorized keys, you can add the `file` parameter:
         auth       sufficient     ...so file=~/.ssh/authorized_keys
-
-        For more detailed information, please consult the project's README file.
         EOS
-    end
+        end
 
-    test do
-        # A basic test to ensure the shared object file was installed.
-        assert_predicate lib/"security/pam_ssh_agent.so", :exist?
-    end
-end
+        test do
+            # A basic test to ensure the shared object file was installed.
+            assert_predicate lib/"security/pam_ssh_agent.so", :exist?
 
+            # On macOS, we can also check if the file is signed.
+            if OS.mac?
+                (testpath/"codesign_output").write shell_output("/usr/bin/codesign -dv #{lib}/security/pam_ssh_agent.so 2>&1")
+                assert_match "Signature=adhoc", (testpath/"codesign_output").read
+                assert_match "Runtime Version", (testpath/"codesign_output").read
+            end
+        end
+    end
