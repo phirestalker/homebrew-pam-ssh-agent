@@ -1,10 +1,13 @@
 class PamSshAgent < Formula
     desc "PAM module for authentication with ssh-agent"
     homepage "https://github.com/nresare/pam-ssh-agent"
-    url "https://github.com/nresare/pam-ssh-agent/archive/refs/tags/v0.9.4.tar.gz"
-    sha256 "9b0f6d6aa72b4dbe6c3c6d6c6ce62081ed86519ad117451aa492fa73aabbfdb3"
+    url "https://github.com/nresare/pam-ssh-agent/archive/refs/tags/v0.9.5.tar.gz"
+    # NOTE: the archive checksum for the v0.9.5 tag must be refreshed after downloading
+    # the upstream release tarball. The GitHub API available in this environment does not
+    # expose the generated source archive SHA256 directly.
+    sha256 "TODO_REPLACE_WITH_v0.9.5_SHA256"
     license "BSD-2-Clause"
-    head "https://github.com/nresare/pam-ssh-agent.git", branch: "master"
+    head "https://github.com/nresare/pam-ssh-agent.git", branch: "main"
 
     # Build dependencies
     depends_on "rust" => :build
@@ -103,7 +106,7 @@ class PamSshAgent < Formula
             4. Click "Create", then "Done".
             5. In Keychain Access, find the "pam-signer" certificate, double-click it,
             expand the "Trust" section, and set "When using this certificate:" to "Always Trust".
-            6. After creating the certificate, reinstall this formula to apply the signature:
+            6. After creating the certificate, reinstall this recipe to apply the signature:
             brew reinstall ./pam-ssh-agent.rb
             ------------------------------------------------------------------
 
@@ -176,4 +179,3 @@ class PamSshAgent < Formula
         end
     end
 end
-
