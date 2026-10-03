@@ -5,7 +5,7 @@ class PamSshAgent < Formula
     # NOTE: the archive checksum for the v0.9.5 tag must be refreshed after downloading
     # the upstream release tarball. The GitHub API available in this environment does not
     # expose the generated source archive SHA256 directly.
-    sha256 "TODO_REPLACE_WITH_v0.9.5_SHA256"
+    sha256 "c707d365675b7d3d388586f4adbba070f931cc7a8a49802c015c14130a92de6b"
     license "BSD-2-Clause"
     head "https://github.com/nresare/pam-ssh-agent.git", branch: "main"
 
